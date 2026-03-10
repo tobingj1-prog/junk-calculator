@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Junk Removal Pro Calculator</title>
+<style>
+body{font-family:Arial; padding:15px; background:#f2f2f2;}
+.container{background:white; padding:20px; border-radius:10px; max-width:500px; margin:auto;}
+h2{text-align:center;}
+input,select,button{width:100%; padding:10px; margin:6px 0; font-size:16px;}
+button{background:#2e7d32; color:white; border:none; border-radius:6px;}
+.results{background:#fafafa; padding:12px; border-radius:8px; margin-top:10px;}
+.item-list{background:#f9f9f9; padding:10px; border-radius:6px; margin-top:10px;}
+.item{border-bottom:1px solid #ddd; padding:6px 0; display:flex; justify-content:space-between;}
+.item button{background:#c62828; padding:2px 6px; font-size:12px;}
+</style>
+</head>
+<body>
+<div class="container">
+<h2>Junk Removal Calculator</h2>
+
+<label>Load Size</label>
+<select id="load">
+<option value="150">1/8 Truck</option>
+<option value="250">1/4 Truck</option>
+<option value="450">1/2 Truck</option>
+<option value="600">3/4 Truck</option>
+<option value="750">Full Truck</option>
+</select>
+
+<label>Distance (Miles)</label>
+<input id="miles" type="number" value="10">
+
+<label>Gas Price ($)</label>
+<input id="gas" type="number" value="3.5">
+
+<label>Truck MPG</label>
+<input id="mpg" type="number" value="12">
+
+<label>Dump Fee ($)</label>
+<input id="dump" type="number" value="40">
+
+<label>Profit Margin (%)</label>
+<input id="margin" type="number" value="30">
+
+<hr>
+<h3>Single Item Pricing</h3>
+<label>Item Name</label>
+<input id="itemName" placeholder="e.g., Couch">
+
+<label>Item Price</label>
+<input id="itemPrice" type="number" placeholder="Price to haul">
+
+<button onclick="addItem()">Add Item</button>
+
+<div class="item-list" id="itemList"></div>
+
+<hr>
+<div class="results">
+<p>Total Base Cost (Load + Gas + Dump): $<span id="totalCost">0</span></p>
+<p>Profit Amount: $<span id="profit">0</span></p>
+<p>Total Items Price: $<span id="itemsTotal">0</span></p>
+<h3>Suggested Price: $<span id="price">0</span></h3>
+</div>
+
+</div>
+
+<script>
+let items = [];
+
+function addItem(){
+  const name = document.getElementById("itemName").value.trim();
+  const price = parseFloat(document.getElementById("itemPrice").value);
+  if(name && !isNaN(price)){
+    items.push({name:name, price:price});
+    renderItems();
+    document.getElementById("itemName").value="";
+    document.getElementById("itemPrice").value="";
+    calculate();
+  }
+}
+
+function removeItem(index){
+  items.splice(index,1);
+  renderItems();
+  calculate();
+}
+
+function renderItems(){
+  const list = document.getElementById("itemList");
+  list.innerHTML = "";
+  items.forEach((i,index)=>{
+    list.innerHTML += `<div class="item">${i.name} - $${i.price.toFixed(2)} <button onclick="removeItem(${index})">Remove</button></div>`;
+  });
+}
+
+function calculate(){
+  let load = Number(document.getElementById("load").value);
+  let miles = Number(document.getElementById("miles").value);
+  let gas = Number(document.getElementById("gas").value);
+  let mpg = Number(document.getElementById("mpg").value);
+  let dump = Number(document.getElementById("dump").value);
+  let margin = Number(document.getElementById("margin").value);
+
+  let gasCost = (miles / mpg) * gas;
+  let baseCost = load + gasCost + dump;
+  let profit = baseCost * (margin/100);
+
+  let itemsTotal = items.reduce((sum,i)=>sum+i.price,0);
+
+  document.getElementById("totalCost").innerText = baseCost.toFixed(2);
+  document.getElementById("profit").innerText = profit.toFixed(2);
+  document.getElementById("itemsTotal").innerText = itemsTotal.toFixed(2);
+  document.getElementById("price").innerText = (baseCost + profit + itemsTotal).toFixed(2);
+}
+
+// Auto-calculate when changing inputs
+document.querySelectorAll('#load,#miles,#gas,#mpg,#dump,#margin').forEach(el=>{
+  el.addEventListener('input', calculate);
+});
+
+</script>
+</body>
+</html>
