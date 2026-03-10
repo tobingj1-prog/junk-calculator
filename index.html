@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Junk Removal Calculator</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 20px; background: #f4f4f4; }
+h1 { text-align: center; color: #333; }
+label { display: block; margin-top: 10px; }
+input, select, button { width: 100%; padding: 8px; margin-top: 5px; }
+.result { margin-top: 20px; font-weight: bold; }
+.item-list { margin-top: 10px; }
+.item { display: flex; margin-bottom: 5px; }
+.item input { flex: 1; margin-right: 5px; }
+.item button { flex: 0; }
+</style>
+</head>
+<body>
+<h1>Junk Removal Calculator</h1>
+
+<label>Load Size ($ per cubic yard)
+  <input type="number" id="loadSize" placeholder="Enter load size">
+</label>
+
+<label>Distance (miles)
+  <input type="number" id="distance" placeholder="Enter distance">
+</label>
+
+<label>Gas Cost ($)
+  <input type="number" id="gasCost" placeholder="Enter gas cost">
+</label>
+
+<label>Dump Fee ($)
+  <input type="number" id="dumpFee" placeholder="Enter dump fee">
+</label>
+
+<label>Profit Margin (%)
+  <input type="number" id="profitMargin" placeholder="Enter profit margin">
+</label>
+
+<h3>Single Items</h3>
+<div class="item-list" id="itemList"></div>
+<button onclick="addItem()">Add Item</button>
+
+<button onclick="calculate()">Calculate Total</button>
+
+<div class="result" id="totalResult"></div>
+
+<script>
+let items = [];
+function addItem() {
+  const itemList = document.getElementById('itemList');
+  const index = items.length;
+  items.push({ name: '', price: 0 });
+
+  const div = document.createElement('div');
+  div.className = 'item';
+  div.id = 'item-' + index;
+
+  const nameInput = document.createElement('input');
+  nameInput.placeholder = 'Item name';
+  nameInput.oninput = (e) => items[index].name = e.target.value;
+
+  const priceInput = document.createElement('input');
+  priceInput.type = 'number';
+  priceInput.placeholder = 'Price';
+  priceInput.oninput = (e) => items[index].price = parseFloat(e.target.value) || 0;
+
+  const removeBtn = document.createElement('button');
+  removeBtn.textContent = 'X';
+  removeBtn.onclick = () => {
+    items.splice(index, 1);
+    div.remove();
+    calculate();
+  }
+
+  div.appendChild(nameInput);
+  div.appendChild(priceInput);
+  div.appendChild(removeBtn);
+  itemList.appendChild(div);
+}
+
+function calculate() {
+  const loadSize = parseFloat(document.getElementById('loadSize').value) || 0;
+  const distance = parseFloat(document.getElementById('distance').value) || 0;
+  const gasCost = parseFloat(document.getElementById('gasCost').value) || 0;
+  const dumpFee = parseFloat(document.getElementById('dumpFee').value) || 0;
+  const profitMargin = parseFloat(document.getElementById('profitMargin').value) || 0;
+
+  let itemTotal = items.reduce((sum, item) => sum + item.price, 0);
+  let subtotal = loadSize + gasCost + dumpFee + itemTotal;
+  let total = subtotal * (1 + profitMargin/100);
+
+  document.getElementById('totalResult').textContent = 
+    'Suggested Total Price: $' + total.toFixed(2);
+}
+</script>
+</body>
+</html>
